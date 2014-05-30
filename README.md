@@ -14,7 +14,9 @@ The goal of this project is to:
       - Send a desktop notification to the remote owner, mentioning there is an unknown person at your door step. 
       
 The source code contains 2 individual projects:
-1. Desktop Notification System: For receiving the notifications from the RasPi Visitor Detector 
-2. RasPi Face Recognition System: For recognizing the face and do appropriate action. 
+- Desktop Notification System: 
+  - For receiving the notifications from the RasPi Visitor Detector 
+- RasPi Face Recognition System: 
+  - For recognizing the face and do appropriate action. 
 
 Please find more information about individual projects in their respective folders. 
