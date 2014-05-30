@@ -7,6 +7,7 @@ import org.bytedeco.javacpp.opencv_core.Mat;
 import com.pi4j.io.gpio.GpioController;
 import com.pi4j.io.gpio.GpioFactory;
 import com.pi4j.io.gpio.GpioPinDigitalInput;
+import com.pi4j.io.gpio.GpioPinDigitalOutput;
 import com.pi4j.io.gpio.PinPullResistance;
 import com.pi4j.io.gpio.PinState;
 import com.pi4j.io.gpio.RaspiPin;
@@ -75,6 +76,24 @@ public class IRSensorManager implements Constants {
 								Mat tgtImgMat = UtilsJavaCv.captureAndSaveFaceFromWebcam(tgtImgFile);
 								if(sFaceRecognizer.recognizeThisImg(tgtImgMat)) {
 									// Person is a recognized person:
+									// Here we can unlock the door automatically by sending signal to GPIO Pin3 for few mins
+									final GpioPinDigitalOutput servoMtrPin = mGpio.provisionDigitalOutputPin(RaspiPin.GPIO_03, "ToServoMotor", PinState.HIGH);
+									try {
+										// Wait for 1 min and turn it off
+										Thread.sleep(1000 * 60);
+									} catch(InterruptedException ex) {}
+									finally {
+										servoMtrPin.low();
+									}
+								} else {
+									// Person is unknow.. so, turn on the calling bell!
+									final GpioPinDigitalOutput callingBellPin = mGpio.provisionDigitalOutputPin(RaspiPin.GPIO_04, "ToCallingBell", PinState.HIGH);
+									try {
+										Thread.sleep(500);
+									} catch(InterruptedException ex) {}
+									finally {
+										callingBellPin.low();
+									}
 								}
 								UtilsJavaCv.close();
 								sFaceRecRunning = false;
