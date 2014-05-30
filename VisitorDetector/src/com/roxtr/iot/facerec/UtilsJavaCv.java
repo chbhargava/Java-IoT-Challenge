@@ -16,18 +16,22 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import org.bytedeco.javacpp.Loader;
+import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacpp.opencv_core.Mat;
 import org.bytedeco.javacpp.opencv_core.Rect;
 import org.bytedeco.javacpp.opencv_core.Size;
-import org.bytedeco.javacpp.opencv_highgui.VideoCapture;
 import org.bytedeco.javacpp.opencv_objdetect.CascadeClassifier;
+import org.bytedeco.javacv.OpenCVFrameGrabber;
+
+import com.roxtr.iot.Constants;
 
 public class UtilsJavaCv implements Constants {
 
 	static {
 		Loader.load(org.bytedeco.javacpp.opencv_core.class);
 	}
-	private static VideoCapture sVideo = null;
+	// 0-default camera, 1 - next...so on
+	private static OpenCVFrameGrabber sGrabber = new OpenCVFrameGrabber(0);
 
 	public static void displayImg(Mat matImg) {
 		try {
@@ -58,9 +62,6 @@ public class UtilsJavaCv implements Constants {
 
 		Mat srcImg = takePic();
 
-		// Debug:
-		// displayImg(srcImg, ".jpg");
-
 		srcImg = cropFace(srcImg);
 		if (srcImg != null) {
 			srcImg = processImg(srcImg);
@@ -69,34 +70,51 @@ public class UtilsJavaCv implements Constants {
 		return srcImg;
 	}
 
-	public static boolean captureAndSaveFaceFromWebcam(String fileName) {
+	public static Mat captureAndSaveFaceFromWebcam(String fileName) {
 		Mat webcamImg;
 		webcamImg = captureFaceFromWebcam();
 		if (webcamImg != null) {
 			imwrite(fileName, webcamImg);
-			return true;
+			return webcamImg;
 		} else {
 			System.out.println("Failed to capture face from webcam: ");
 		}
 
-		return false;
+		return webcamImg;
 	}
+	
+	/*private static Mat takePicFsCam() {
+		
+	}*/
 
 	public static Mat takePic() {
-		Mat img = new Mat();
-		if (sVideo == null) {
-			sVideo = new VideoCapture();
-			sVideo.open(0);
-		}
-		sVideo.retrieve(img);
-		log("Got the image from webcam! " + "[" + img.arrayWidth() + "x"
-				+ img.arrayHeight() + "]");
-		
-		displayImg(img);
-
-		return img;
+		return takePic(0);
 	}
+	
+	public static Mat takePic(int camId) {
+		
+		Mat imgMat = null;
+		try {
+			if(sGrabber == null) {
+				sGrabber = new OpenCVFrameGrabber(camId);
+			}
+            sGrabber.start();
+            IplImage iplImg = sGrabber.grab();
+            if (iplImg != null) {
+                imgMat = new Mat(iplImg);
+            }
+        
+			log("Got the image from webcam! " + "[" + imgMat.arrayWidth() + "x"
+					+ imgMat.arrayHeight() + "]");
+			
+			// displayImg(img);
+		} catch (Exception e) {
+            e.printStackTrace();
+        }
 
+		return imgMat;
+	}
+	
 	public static Mat cropFace(Mat img) {
 		// Create a face detector from the cascade file in the resources
 		// directory.
@@ -105,6 +123,9 @@ public class UtilsJavaCv implements Constants {
 		// Detect faces in the image.
 		Rect rect = new Rect();
 		faceDetector.detectMultiScale(img, rect);
+		if(rect.width() == 0 || rect.height() == 0) {
+			return null;
+		}
 
 		/*
 		 * log("Detected " + faceDetections.toArray().length + " faces");
@@ -133,8 +154,12 @@ public class UtilsJavaCv implements Constants {
 	}
 
 	public static void close() {
-		sVideo.release();
-		sVideo = null;
+		try {
+			sGrabber.release();
+		} catch (org.bytedeco.javacv.FrameGrabber.Exception e) {
+			e.printStackTrace();
+		}
+		sGrabber = null;
 	}
 
 	public static void log(String msg) {
@@ -143,11 +168,21 @@ public class UtilsJavaCv implements Constants {
 
 	public static void main(String[] args) {
 		System.out.println("Cheeeeese...");
-		Mat webcamImg = captureFaceFromWebcam();
+		
+		int vidId = 0;
+		
+		if(args.length >= 1) {
+			vidId = Integer.parseInt(args[1]);
+		}
+		System.out.println("Using vidId: "+vidId);
+		
+		Mat webcamImg = takePic(vidId);
 		if(webcamImg != null) {
 			imwrite("data/imgs/webcam.png", webcamImg);
 		} else {
 			System.out.println("Unable to dectect face from webcam..");
 		}
+		
+		close();
 	}
 }
