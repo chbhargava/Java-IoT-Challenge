@@ -12,7 +12,7 @@ RasPi Visitor Detector:
   - Pin4 (output) is connected to Calling bell ringer. 
   
 - This can be started by: 
-  - sudo ant -DnsServerIp=<NotificationsServerIP>
+  - sudo ant -DnsServerIp=&lt;NotificationsServerIP&gt;
   - Why running as root:
     - As we are using pi4J for controlling GPIO, wiringPi needs root permissions. 
   - This will read all the folders under "data/imgs/Training" directory and process and save the images recursively. 
