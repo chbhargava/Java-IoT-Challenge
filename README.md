@@ -2,6 +2,12 @@ Java-IoT-Challenge
 ==================
 
 The goal of this project is to:
+
+- Train the RasPi Visitor Detector with known 
+  - Generate the images of the known persons 
+  - Detect the faces from the images. 
+  - Process all the faces and store them. 
+
 - If a person comes to your door step:
   - Automatically capture the photo using the IR proximity sensors 
   - Then detect the face of the person using JavaCv and OpenCv
