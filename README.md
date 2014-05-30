@@ -4,7 +4,7 @@ Java-IoT-Challenge
 The goal of this project is to:
 
 - Train the RasPi Visitor Detector with known 
-  - Generate the images of the known persons 
+  - Capture the images of the known persons 
   - Detect the faces from the images. 
   - Process all the faces and store them. 
 
@@ -20,6 +20,8 @@ The goal of this project is to:
       - Send a desktop notification to the remote owner, mentioning there is an unknown person at your door step. 
       
 The source code contains 2 individual projects:
+- Training Images Generator: 
+  - For capture, process and storing the images. 
 - Desktop Notification System: 
   - For receiving the notifications from the RasPi Visitor Detector 
 - RasPi Face Recognition System: 
