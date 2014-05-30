@@ -1,4 +1,4 @@
-package com.roxtr.iot.facerec;
+package com.roxtr.iot.facerec.gen;
 
 import static org.bytedeco.javacpp.opencv_highgui.imread;
 import static org.bytedeco.javacpp.opencv_highgui.imwrite;
@@ -8,11 +8,12 @@ import java.io.File;
 import org.bytedeco.javacpp.Loader;
 import org.bytedeco.javacpp.opencv_core.Mat;
 
-import com.roxtr.iot.Constants;
+import com.roxtr.iot.facerec.UtilsJavaCv;
 
-public class ImageProcessor implements Constants {
 
-	private static String TGT_DIR = ImageGenerator.TGT_DIR;
+public class ImageProcessor {
+
+	private static String sTgtDir = null;
 	static {
 		Loader.load(org.bytedeco.javacpp.opencv_core.class);
 	}
@@ -24,7 +25,7 @@ public class ImageProcessor implements Constants {
 			opt = args[0];
 		}
 		if(args.length >= 2) {
-			TGT_DIR = args[1];
+			sTgtDir = args[1];
 		}
 		
 		if("1".equals(opt)) {
@@ -37,24 +38,24 @@ public class ImageProcessor implements Constants {
 	
 	private static void rename() {
 		
-		File picsDir = new File(TGT_DIR);
-		(new File(TGT_DIR + "/indexed")).mkdirs();
+		File picsDir = new File(sTgtDir);
+		(new File(sTgtDir + "/indexed")).mkdirs();
 		
 		int index = 90;
 		for(File eachFile : picsDir.listFiles()) {
-			eachFile.renameTo(new File(TGT_DIR + "/" + index + ".jpg"));
+			eachFile.renameTo(new File(sTgtDir + "/" + index + ".jpg"));
 			index++;
 		}
 	}
 	
 	public static void process() {
-    	(new File(TGT_DIR + "/faces")).mkdirs();
+    	(new File(sTgtDir + "/faces")).mkdirs();
     	
-    	File picsDir = new File(TGT_DIR + "/raw");
+    	File picsDir = new File(sTgtDir + "/raw");
     	
     	int index = 76;
      	for(String eachFile : picsDir.list()) {
- 			String fileName = TGT_DIR + "/raw/" + eachFile;
+ 			String fileName = sTgtDir + "/raw/" + eachFile;
  			
  			System.out.println("Processing: "+fileName);
  			Mat srcImg = imread(fileName);
@@ -64,7 +65,7 @@ public class ImageProcessor implements Constants {
  			Mat justFaceImg = UtilsJavaCv.cropFace(srcImg);
  			if(justFaceImg != null) {
  				justFaceImg = UtilsJavaCv.processImg(justFaceImg);
-     			imwrite(TGT_DIR + "/faces/" + index + ".jpg", justFaceImg);
+     			imwrite(sTgtDir + "/faces/" + index + ".jpg", justFaceImg);
      			index++;
  			}
      	} 

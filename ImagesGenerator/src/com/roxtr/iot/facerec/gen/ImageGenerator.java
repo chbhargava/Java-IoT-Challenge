@@ -92,16 +92,16 @@ import javax.swing.WindowConstants;
 public class ImageGenerator extends JFrame implements ControllerListener,
 		DataSinkListener {
 
-	Processor p;
-	Object waitSync = new Object();
-	boolean stateTransitionOK = true;
-	static boolean monitorOn = false;
+	private Processor p;
+	private Object waitSync = new Object();
+	private boolean stateTransitionOK = true;
 	
-	public static final String TGT_DIR = "data/imgs/teju";
+	private static boolean sMonitorOn = false;
+	private static String sTgtDir = "data/imgs/teju";
 	
 	public ImageGenerator() {
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		(new File(TGT_DIR+"/raw")).mkdirs();
+		(new File(sTgtDir+"/raw")).mkdirs();
 	}
 	
 
@@ -113,7 +113,7 @@ public class ImageGenerator extends JFrame implements ControllerListener,
 
 		System.err.println("create processor for: " + ds.getContentType());
 
-		if (monitorOn) {
+		if (sMonitorOn) {
 			// If monitoring is on, we'd like to enable synchronization
 			// by enabling the use of the RawSyncBufferMux. The default
 			// is RawBufferMux which does not perform sychronization.
@@ -221,7 +221,7 @@ public class ImageGenerator extends JFrame implements ControllerListener,
 			return false;
 		}
 
-		if (monitorOn) {
+		if (sMonitorOn) {
 
 			// If monitor is on, try to obtain any monitor controls
 			// from the processor and display them.
@@ -258,7 +258,7 @@ public class ImageGenerator extends JFrame implements ControllerListener,
 
 		// Start the processor.
 		p.start();
-		if (monitorOn)
+		if (sMonitorOn)
 			setVisible(true);
 
 		return true;
@@ -570,7 +570,7 @@ public class ImageGenerator extends JFrame implements ControllerListener,
 
 			// Write the data in a file.
 			try {
-				String imageFile = TGT_DIR+"/raw/image" + buffer.getTimeStamp()
+				String imageFile = sTgtDir+"/raw/image" + buffer.getTimeStamp()
 						+ ".jpg";
 				RandomAccessFile raFile;
 				raFile = new RandomAccessFile(imageFile, "rw");
@@ -656,24 +656,16 @@ public class ImageGenerator extends JFrame implements ControllerListener,
 	 */
 	public static void main(String[] args) {
 
-		if (args.length == 0) {
+		if (args.length < 2) {
 			prUsage();
 			System.exit(0);
 		}
 
 		// Parse the arguments.
 		int i = 0;
-		String inputURL = null;
-		while (i < args.length) {
-
-			if (args[i].equals("-monitor")) {
-				monitorOn = true;
-			} else {
-				inputURL = args[i];
-			}
-			i++;
-		}
-
+		String inputURL = args[0];
+		sTgtDir = args[1];
+		sMonitorOn = true;
 		if (inputURL == null) {
 			System.err.println("No input url is specified");
 			prUsage();
