@@ -4,7 +4,7 @@ Java-IoT-Challenge
 The goal of this project is to:
 
 - Train the RasPi Visitor Detector with known 
-  - Capture the images of the known persons 
+  - Capture the images of the known persons. 
   - Detect the faces from the images. 
   - Process all the faces and store them. 
 
